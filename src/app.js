@@ -5,17 +5,24 @@ const app = express();
 const User = require("./models/user.js");
 
 
+app.use(express.json());
 
 
-app.post('/signup', async (req, resp)=>{
-    const userObj = {
-        firstName : 'Shivani',
-        lastName:'Allu',
-        emailId :"bhargav.allu@gmail.com",
-        password: "ShivaniAllu"
+//Feed of Users
+app.get('/feedAllUsers', async (req,resp)=>{
+
+
+    try{
+        const users = await User.find({});
+        resp.send(users); 
+    }catch(err){
+        resp.status(400).send("Something went Wrong")
     }
+
+})
+app.post('/signup', async (req, resp)=>{
     //Creating a new Instance of User Model
-    const user = new User(userObj);
+    const user = new User(req.body);
     try{
         await user.save();
         resp.send("User Successfully Added to Database");
