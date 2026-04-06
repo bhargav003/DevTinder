@@ -23,8 +23,9 @@ const app = express();
 // a route can have multiple route handlers like below syntax
 app.use('/test',(req, resp, next)=>{
     console.log("Resp handler 1")
+    // resp.send("Hello From Test"); 
+
     next();
-    resp.send("Hello From Test"); 
 },
 (req,resp)=>{
     console.log("Resp Handler2")
