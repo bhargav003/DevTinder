@@ -3,7 +3,11 @@ const express = require('express');
 const app = express();
 
 
-
+//Dynamic Route
+app.get('/user/:userId/:name/:password', (req,resp)=>{
+    console.log(req.params);
+    resp.send({firstName:"Bhargav", lastName:"Allu"})
+})
 
 app.get('/user', (req,resp)=>{
     resp.send({firstName:"Bhargav", lastName:"Allu"})
