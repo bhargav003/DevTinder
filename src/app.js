@@ -2,11 +2,37 @@ const express = require('express');
 const {adminAuth, userAuth} = require('./middlewares/auth.js');
 const connectDB = require('./config/database.js');
 const app = express();
-const User = require("./models/user.js");
+const bcrypt  = require("bcrypt") 
 
+const User = require("./models/user.js");
+const {validateSignupData} = require("./utils/valiations.js");
 
 app.use(express.json());
 
+
+app.post('/signup', async (req, resp)=>{
+    //Creating a new Instance of User Model
+  
+    try{
+        validateSignupData(req);
+        const {firstName, lastName, emailId, password}  = req.body;
+        //Encrypt the password 
+        const passwordHash = await bcrypt.hash(password, 10);
+        //User Instance of the user model 
+        const user = new User(
+            {
+                firstName,
+                lastName,
+                emailId, 
+                password : passwordHash
+            }
+        );
+        await user.save();
+        resp.send("User Successfully Added to Database");
+    }catch(err){
+        resp.status(400).send("Error Saving the user" + err.message);
+    }
+})
 
 //Feed of Users
 app.get('/feedAllUsers', async (req,resp)=>{
@@ -18,16 +44,7 @@ app.get('/feedAllUsers', async (req,resp)=>{
     }
 })
 
-app.post('/signup', async (req, resp)=>{
-    //Creating a new Instance of User Model
-    const user = new User(req.body);
-    try{
-        await user.save();
-        resp.send("User Successfully Added to Database");
-    }catch(err){
-        resp.status(400).send("Error Saving the user" + err.message);
-    }
-})
+
 
 //Delete User By Id
 
