@@ -5,7 +5,7 @@ const app = express();
 const bcrypt  = require("bcrypt") 
 
 const User = require("./models/user.js");
-const {validateSignupData} = require("./utils/valiations.js");
+const {validateSignupData, validateEmail} = require("./utils/valiations.js");
 
 app.use(express.json());
 
@@ -31,6 +31,29 @@ app.post('/signup', async (req, resp)=>{
         resp.send("User Successfully Added to Database");
     }catch(err){
         resp.status(400).send("Error Saving the user" + err.message);
+    }
+})
+
+app.post("/login", async (req,resp)=>{
+    try {
+        validateEmail(emailId);
+        const  {emailId, password} = req.body
+        const user = await User.findOne({emailId:emailId});
+       
+        if(!user){
+            throw new Error("Invalid Credentials");
+        }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if(isPasswordValid){
+            res.send("Login Successful");
+        }else {
+            throw new Error("Password is not valid");
+        }
+
+
+    }catch(err) {
+       resp.status(400).send("Error loggin the user" + err.message);  
     }
 })
 

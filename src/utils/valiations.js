@@ -15,4 +15,10 @@ const validateSignupData = (req)=>{
     }
 }
 
-module.exports = {validateSignupData}
+const validateEmail = (email) =>{
+  if(!validator.isEmail){
+    throw new Error("Please enter valid Email");
+  }
+}
+
+module.exports = {validateSignupData, validateEmail}
