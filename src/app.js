@@ -3,12 +3,13 @@ const {adminAuth, userAuth} = require('./middlewares/auth.js');
 const connectDB = require('./config/database.js');
 const app = express();
 const bcrypt  = require("bcrypt") 
-
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const User = require("./models/user.js");
 const {validateSignupData, validateEmail} = require("./utils/valiations.js");
 
 app.use(express.json());
-
+app.use(cookieParser());
 
 app.post('/signup', async (req, resp)=>{
     //Creating a new Instance of User Model
@@ -46,6 +47,8 @@ app.post("/login", async (req,resp)=>{
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if(isPasswordValid){
+            const token = await jwt.sign({_id:user._id}, "DevTinder@1989121");
+            res.cookie("token", token);
             res.send("Login Successful");
         }else {
             throw new Error("Password is not valid");
@@ -60,6 +63,9 @@ app.post("/login", async (req,resp)=>{
 //Feed of Users
 app.get('/feedAllUsers', async (req,resp)=>{
     try{
+        const cookies = req.cookies;
+        const {token} = cookies;
+        const decodedCookie = await jwt.verify(token, "DevTinder@1989121")
         const users = await User.find({});
         resp.send(users); 
     }catch(err){
